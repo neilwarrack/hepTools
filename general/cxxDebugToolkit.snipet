@@ -1,0 +1,16 @@
+// ============= Neil's Debug Toolkit ============== //
+#define N1 do { std::cout << "1 "; } while(0)
+#define N2 do { std::cout << "2 "; } while(0)
+#define N3 do { std::cout << "3 "; } while(0)
+#define N4 do { std::cout << "4 "; } while(0)
+#define N5 do { std::cout << "5 "; } while(0)
+#define N6 do { std::cout << "6 "; } while(0)
+#define N7 do { std::cout << "7 "; } while(0)
+#define N8 do { std::cout << "8 "; } while(0)
+#define N9 do { std::cout << "9 "; } while(0)
+#define WORRY   do { std::cout << "WORRY!"   << endl; } while(0)
+#define SUCCESS do { std::cout << "SUCCESS!" << endl; } while(0)
+#define BEGIN   do { std::cout << "Begin..." << endl; } while(0)
+#define END     do { std::cout << "End..."   << endl; } while(0)
+#define RET     do { std::cout << endl; } while(0)
+// =================================================== //
