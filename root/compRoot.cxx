@@ -28,6 +28,7 @@ int compTH1I(TDirectoryFile*, TDirectoryFile*, TKey*);
 int compTH2F(TDirectoryFile* f1, TDirectoryFile* f2, TKey* key);
 int compTH2I(TDirectoryFile* f1, TDirectoryFile* f2, TKey* key);
 int compTProfile(TDirectoryFile* f1, TDirectoryFile* f2, TKey* key);
+int compTProfile2D(TDirectoryFile* f1, TDirectoryFile* f2, TKey* key);
 
 
 
@@ -69,7 +70,7 @@ void compRoot()
     cout << "SUCCESS! No mismatches in any files" << endl;
     
   }
-  cout << "NB: Only TH1I, TH1F, TH2I, TH2F and TProfile files were checked." << endl;
+  cout << "NB: Only TH1I, TH1F, TH1D, TH2I, TH2F, TH2D, TProfile and TProfile2D files were checked." << endl;
 }
 
 
@@ -93,7 +94,7 @@ int compareContents(TDirectoryFile* directory1, TDirectoryFile* directory2, int*
       cout << "ERROR: Mismatch of file names! " << endl;
       cout << "ERROR: "<< name1 << " != " << name2 << endl; 
       cout << "ERROR: Solution: Root files must have identicle directory layouts." << endl;
-      cout << "ERROR: no further equiry will be made in to this file...";
+      cout << "ERROR: no further equiry will be made in to this file..." << endl;
     } else {
       
       // Get directory
@@ -109,17 +110,21 @@ int compareContents(TDirectoryFile* directory1, TDirectoryFile* directory2, int*
 	cout << "comparing " << subDirectory1ClassName << ": " << fileKey1->GetName() << " ...";      
 
 	// compare histos
-	if (subDirectory1ClassName == "TH1F")     *mCtr += compTH1F(subDirectory1, subDirectory2, fileKey1);
 	if (subDirectory1ClassName == "TH1I")     *mCtr += compTH1I(subDirectory1, subDirectory2, fileKey1);
-	if (subDirectory1ClassName == "TH2F")     *mCtr += compTH2F(subDirectory1, subDirectory2, fileKey1);
+	if (subDirectory1ClassName == "TH1F")     *mCtr += compTH1F(subDirectory1, subDirectory2, fileKey1);
+	if (subDirectory1ClassName == "TH1D")     *mCtr += compTH1F(subDirectory1, subDirectory2, fileKey1); //compTH1F handles doubles and will work for TH1D
 	if (subDirectory1ClassName == "TH2I")     *mCtr += compTH2I(subDirectory1, subDirectory2, fileKey1);
+	if (subDirectory1ClassName == "TH2F")     *mCtr += compTH2F(subDirectory1, subDirectory2, fileKey1);
+	if (subDirectory1ClassName == "TH2D")     *mCtr += compTH2F(subDirectory1, subDirectory2, fileKey1); //compTH2F handles doubles and will work for TH2D
 	if (subDirectory1ClassName == "TProfile") *mCtr += compTProfile(subDirectory1, subDirectory2, fileKey1);
+	if (subDirectory1ClassName == "TProfile2D") *mCtr += compTProfile2D(subDirectory1, subDirectory2, fileKey1);
 	
       }
     }
   }
   return *mCtr;
 }
+
 
 
 int compTH1F(TDirectoryFile* f1, TDirectoryFile* f2, TKey* key){
@@ -269,3 +274,43 @@ int compTProfile(TDirectoryFile* f1, TDirectoryFile* f2, TKey* key){
 }
 
 
+int compTProfile2D(TDirectoryFile* f1, TDirectoryFile* f2, TKey* key){
+
+
+  //	  TProfile2D * p1 = (TProfile2D*)subDirectory1;
+  //	  TProfile2D * p2 = (TProfile2D*)subDirectory2;
+	  TProfile2D * p1 = (TProfile2D*)f1;
+	  TProfile2D * p2 = (TProfile2D*)f2;
+	  
+	  TH1D *X1 = p1->ProjectionX("X1");
+	  TH1D *X2 = p2->ProjectionX("X1");
+
+	  TH1D *Y1 = p1->ProjectionY("Y1");
+	  TH1D *Y2 = p2->ProjectionY("Y2");
+	  
+	  TDirectoryFile* TH1DProf2DX1=(TDirectoryFile*)X1;
+	  TDirectoryFile* TH1DProf2DX2=(TDirectoryFile*)X2;
+	  TDirectoryFile* TH1DProf2DY1=(TDirectoryFile*)Y1;
+	  TDirectoryFile* TH1DProf2DY2=(TDirectoryFile*)Y2;
+
+	  //int Xresult = compTH1F( TH1DProf2DX1,  TH1DProf2DX2, fileKey1);
+	  //int Yresult = compTH1F( TH1DProf2DY1,  TH1DProf2DY2, fileKey1);
+
+	  //    align...   comparing TProfile2d: 
+	  cout << endl << "                      ...2dProfile x-axis: ";
+ 	  int Xresult = compTH1F( TH1DProf2DX1,  TH1DProf2DX2, key);
+	  //	  cout << endl << "  2dProfile y-axis: ";	 
+	  cout <<         "                      ...2dProfile y-axis: ";
+	  int Yresult = compTH1F( TH1DProf2DY1,  TH1DProf2DY2, key);
+	  
+	  //	  int Yresult = compTH1F(Y1, Y2, fileKey1);
+	  //	  cout << endl << endl << "result of TProfile2D part 1 = " << Xresult << endl;	  
+	  //cout                 << "result of TProfile2D part 2 = " << Yresult << endl;	  
+
+	  int mismatchCtr = Xresult + Yresult;
+	  return mismatchCtr;
+
+
+
+
+}
