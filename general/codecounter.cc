@@ -86,17 +86,17 @@ int main ( int argc, char *argv[] ){
 
   // check for appropriate number of command line arguments  
   if (argc != 3) {
-    cout << "ERROR: requires an input (.log) file and an integer (number of lines to skip) as arguments... " << endl ;
-    cout << "ERROR: (see input file - count number of lines to skip by eye)" << endl ; 
-    cout << "ERROR: ...aborting."<< endl;
+    cout << "codecounter-Error: requires an input (.log) file and an integer (number of lines to skip) as arguments... " << endl ;
+    cout << "codecounter-Error: (see input file - count number of lines to skip by eye)" << endl ; 
+    cout << "codecounter-Error: ...aborting."<< endl;
     return 1;
   }
 
 
   // feedback user info:
-  cout << "INFO: input file: " ; 
+  cout << "codecounter-INFO: input file: " ; 
   printout(argv[1]) ;
-  cout << "INFO: integer number of lines to skip: " ; 
+  cout << "codecounter-INFO: integer number of lines to skip: " ; 
   printout(argv[2]) ;
 
 
@@ -105,7 +105,7 @@ int main ( int argc, char *argv[] ){
   ifstream mydata ;
   mydata.open(filename) ;
   if ( mydata.fail() ) {
-    cout << "ERROR: couldn’t open file: " << filename << endl ;
+    cout << "codecounter-Error: couldn’t open file: " << filename << endl ;
     return 1; 
   }
 
@@ -121,7 +121,7 @@ int main ( int argc, char *argv[] ){
 
   // abort of lines to skip > lines in file
   if (m > lines) {
-   cout << "ERROR: line to skip is larger than lines in file " << endl ; 
+   cout << "codecounter-Error: line to skip is larger than lines in file " << endl ; 
    return 1;
   }
 
@@ -138,8 +138,8 @@ int main ( int argc, char *argv[] ){
     } else { // if ( line >= m )
       
       // output info to user
-      cout << "INFO: Ignored first " << m << " lines..." << endl ;
-      cout << "INFO: reading remaining " << lines - m << " lines from file" << endl ;
+      cout << "codecounter-INFO: Ignored first " << m << " lines..." << endl ;
+      cout << "codecounter-INFO: reading remaining " << lines - m << " lines from file" << endl ;
       
       while(getline(mydata, linestring))
 	{
@@ -175,7 +175,9 @@ int main ( int argc, char *argv[] ){
 
  int total=0;
  for (int i=0; i<10; i++){
+   cout << "adding code" << i << "=" << vetoFrequency[i] << "to total..." << endl;
    total += vetoFrequency[i];
+   cout "total=" << total << endl;
  }
  
  cout << "    code 1: " << vetoFrequency[0] <<endl ;
