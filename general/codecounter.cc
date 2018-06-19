@@ -175,9 +175,9 @@ int main ( int argc, char *argv[] ){
 
  int total=0;
  for (int i=0; i<10; i++){
-   cout << "adding code" << i << "=" << vetoFrequency[i] << "to total..." << endl;
+   //cout << "adding code" << i << "=" << vetoFrequency[i] << "to total..." << endl;
    total += vetoFrequency[i];
-   cout "total=" << total << endl;
+   //cout << "total=" << total << endl;
  }
  
  cout << "    code 1: " << vetoFrequency[0] <<endl ;
