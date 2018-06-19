@@ -112,7 +112,7 @@ int main ( int argc, char *argv[] ){
   
   // Count lines in input file
   int const static lines = lineCounter(mydata) ;
-  int vetoFrequency[] = {0,0,0,0,0,0,0,0,0} ;
+  int codeCounter[] = {0,0,0,0,0,0,0,0,0} ;
   const static int m = atoi(argv[2]) ;
   int x = 0 ;
   int line = 0 ;
@@ -146,15 +146,15 @@ int main ( int argc, char *argv[] ){
 	  istringstream iss(linestring) ;
 	  while(iss >> x){
 	    //___________________________________________________________________________
-	    if ( x == 1 ) {vetoFrequency[0] =(vetoFrequency[0]+1);}else{
-	      if ( x == 2 ) {vetoFrequency[1] =(vetoFrequency[1]+1);}else{
-		if ( x == 3 ) {vetoFrequency[2] =(vetoFrequency[2]+1);}else{
-		  if ( x == 4 ) {vetoFrequency[3] =(vetoFrequency[3]+1);}else{
-		    if ( x == 5 ) {vetoFrequency[4] =(vetoFrequency[4]+1);}else{
-		      if ( x == 6 ) {vetoFrequency[5] =(vetoFrequency[5]+1);}else{
-			if ( x == 7 ) {vetoFrequency[6] =(vetoFrequency[6]+1);}else{
-			  if ( x == 8 ) {vetoFrequency[7] =(vetoFrequency[7]+1);}else{
-			    if ( x == 9 ) {vetoFrequency[8] =(vetoFrequency[8]+1);}
+	    if ( x == 1 ) {codeCounter[0] =(codeCounter[0]+1);}else{
+	      if ( x == 2 ) {codeCounter[1] =(codeCounter[1]+1);}else{
+		if ( x == 3 ) {codeCounter[2] =(codeCounter[2]+1);}else{
+		  if ( x == 4 ) {codeCounter[3] =(codeCounter[3]+1);}else{
+		    if ( x == 5 ) {codeCounter[4] =(codeCounter[4]+1);}else{
+		      if ( x == 6 ) {codeCounter[5] =(codeCounter[5]+1);}else{
+			if ( x == 7 ) {codeCounter[6] =(codeCounter[6]+1);}else{
+			  if ( x == 8 ) {codeCounter[7] =(codeCounter[7]+1);}else{
+			    if ( x == 9 ) {codeCounter[8] =(codeCounter[8]+1);}
 			   }
 			 }
 		       }
@@ -175,21 +175,19 @@ int main ( int argc, char *argv[] ){
 
  int total=0;
  for (int i=0; i<9; i++){
-   //cout << "adding code" << i+1 << "=" << vetoFrequency[i] << "to total..." << endl;
-   total += vetoFrequency[i];
-   cout << vetoFrequency[i]<<endl;
-   cout << "total=" << total << endl;
+   //cout << "adding code" << i+1 << "=" << codeCounter[i] << "to total..." << endl;
+   total += codeCounter[i];
  }
  
- cout << "    code 1: " << vetoFrequency[0] <<endl ;
- cout << "    code 2: " << vetoFrequency[1] <<endl ;
- cout << "    code 3: " << vetoFrequency[2] <<endl ;
- cout << "    code 4: " << vetoFrequency[3] <<endl ;
- cout << "    code 5: " << vetoFrequency[4] <<endl ;
- cout << "    code 6: " << vetoFrequency[5] <<endl ;
- cout << "    code 7: " << vetoFrequency[6] <<endl ;
- cout << "    code 8: " << vetoFrequency[7] <<endl ;
- cout << "PASSED (9): " << vetoFrequency[8] <<endl ;
+ cout << "    code 1: " << codeCounter[0] <<endl ;
+ cout << "    code 2: " << codeCounter[1] <<endl ;
+ cout << "    code 3: " << codeCounter[2] <<endl ;
+ cout << "    code 4: " << codeCounter[3] <<endl ;
+ cout << "    code 5: " << codeCounter[4] <<endl ;
+ cout << "    code 6: " << codeCounter[5] <<endl ;
+ cout << "    code 7: " << codeCounter[6] <<endl ;
+ cout << "    code 8: " << codeCounter[7] <<endl ;
+ cout << "PASSED (9): " << codeCounter[8] <<endl ;
  cout << "            ________" << endl;
  cout << "     Total: " << total << endl << endl;    
  return 0;
