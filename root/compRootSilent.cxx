@@ -136,7 +136,7 @@ int compTH1F(TDirectoryFile* f1, TDirectoryFile* f2, TKey* key){
 
   for (int i=0; i<totBins; i++ ){
     bin1 = h1->GetBinContent(i);
-    bin2 = h1->GetBinContent(i);
+    bin2 = h2->GetBinContent(i);
     binDif = bin1 - bin2;
     if (binDif){
       difTot += abs(binDif);     	
@@ -164,7 +164,7 @@ int compTH1I(TDirectoryFile* f1, TDirectoryFile* f2, TKey* key){
 
   for (int i=0; i<totBins; i++ ){
     bin1 = h1->GetBinContent(i);
-    bin2 = h1->GetBinContent(i);
+    bin2 = h2->GetBinContent(i);
     binDif = bin1 - bin2;
     if (binDif){
       difTot += abs(binDif);     	
@@ -194,8 +194,8 @@ int compTH2F(TDirectoryFile* f1, TDirectoryFile* f2, TKey* key){
 
   for (int i=0; i<xTotBins; i++ ){
     for (int j=0; j<yTotBins; j++ ){
-        bin1 = h1->GetBinContent(i,j);
-      bin2 = h1->GetBinContent(i,j);
+      bin1 = h1->GetBinContent(i,j);
+      bin2 = h2->GetBinContent(i,j);
       binDif = bin1 - bin2;
       if (binDif){
 	difTot += abs(binDif);     	
@@ -226,7 +226,7 @@ int compTH2I(TDirectoryFile* f1, TDirectoryFile* f2, TKey* key){
   for (int i=0; i<xTotBins; i++ ){
     for (int j=0; j<yTotBins; j++ ){
       bin1 = h1->GetBinContent(i,j);
-      bin2 = h1->GetBinContent(i,j);
+      bin2 = h2->GetBinContent(i,j);
       binDif = bin1 - bin2;
       if (binDif){
 	difTot += abs(binDif);     	
