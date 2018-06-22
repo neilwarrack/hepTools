@@ -1,3 +1,53 @@
+/*
+Compare your histograms and TProfiles NOW!
+
+usage:
+
+$ root rootComp.cxx
+
+
+This macro processes two root files (which MUST be called input1.root and input2.root) that contain
+multiple histograms and TProfiles (in a possibly nested directory format). The macros compare,
+bin-by-bin, the number of entries in every bin in every histogram and output information about
+whether or not histograms have descrepancies in bin content between input1.root and input2.root.
+
+
+The output might look like this:
+
+******EXAMPLE_OUTPUT_(BEGIN)******
+  In TDirectoryFile: FolderOfHistos_Letters:
+ comparing TH1F: histoNameA ...PASS! (no difference in 202 bins)
+ comparing TH1I: histoNameB ...PASS! (no difference in 102 bins)
+ comparing TH1F: histoNameC ...PASS! (no difference in 102 bins)
+  In TDirectoryFile: FolderOfHistos_Numbers:
+ comparing TH1F: exampHisto1 ...PASS! (no difference in 52 bins)
+ comparing TH1F: exampHisto2 ...PASS! (no difference in 52 bins)
+ comparing TH1F: exampHisto3 ...FAIL! (difference in 3/52 bins)
+ comparing TProfile2D: ExampleRoot2DProfile_01 ...
+                       ...2dProfile x-axis: PASS! (no difference in 19 bins)
+                       ...2dProfile y-axis: PASS! (no difference in 34 bins)
+ comparing TH1F: HistoWigglyWoo ...PASS! (no difference in 102 bins)
+  - - - - - - FINISHED - - - - - - -
+ No. of Mismatches: 11
+******EXAMPLE_OUTPUT_(END)******
+
+As can be seen above the directory name and the type of histogram/profile is displayed before a
+pass/fail verdict is delivered with some additional info in the case of a 'fail'
+
+The types of root objects that can be compared are listed below:
+TH1I, TH1F, TH1D, TH2I, TH2F, TH2D, TProfile, TProfile2D
+
+If you don't want so much output, read the readme in this directory and consider:
+
+1) rootCompErrorsOnly.cxx 
+    (outputs N lines if there are N histograms that aren't bin-by-bin identicle)
+    Spews out only info on what histos had differences in one or more of their bin contents
+
+2) rootCompSilent.cxx
+    (outputs a couple of lines only)
+    Returns only the number of histograms that had some difference in at least one of their bins
+ */
+
 #include "TFile.h"
 #include "TTree.h"
 #include "TCanvas.h"
@@ -13,12 +63,6 @@
 #include "TF1.h"
 #include "TF2.h"
 #include "TProfile.h"
-/*
-  Root macro to extract all objects from two root (identical in format, different in histo content) 
-  files and compare the histograms.
-  Designed to confirm that changes made to the ATLAS trigger code do not effect the code functionality
-*/
-
 
 using namespace std;
 
@@ -31,28 +75,21 @@ int compTProfile(TDirectoryFile* f1, TDirectoryFile* f2, TKey* key);
 int compTProfile2D(TDirectoryFile* f1, TDirectoryFile* f2, TKey* key);
 
 
+//  DESCRIPTION:
+//  Root macro to extract all objects from two root (identical in format, but possibly different in 
+//  histo content) files and compare the histograms.
+//  Designed to confirm that some changes made to code do not effect the code functionality
 
-
-unsigned int filenum=14;
 
 void compRoot()
 {
 
-  TDirectory *where = gDirectory; //gDirectory = global directory         
-
-  gROOT->Reset();
-  gStyle->SetPalette(kBird); // Set the "COLZ" palette to a nice one
-  gStyle->SetOptStat(101111);  
-  gStyle->SetStatY(0.9);
-  gStyle->SetStatX(0.9);
-
-  // open root files to compare
   TString fileStr1;
   TString fileStr2;
   stringstream strStream1;
   stringstream strStream2;
-  strStream1 << "expert-monitoring1.root";    
-  strStream2 << "expert-monitoring2.root";    
+  strStream1 << "input1.root";    // here's where your files go in!
+  strStream2 << "input2.root";    // here's where your files go in!
   fileStr1 = strStream1.str();
   fileStr2 = strStream2.str();
   TFile *file1 = new TFile(fileStr1);
@@ -65,7 +102,7 @@ void compRoot()
   cout << " - - - - - - FINISHED - - - - - - - " << endl << endl;
  
   if (*errorCtr){
-    printf(" ERROR: No. of Mismatches: %d\n", *errorCtr);
+    printf("No. of Mismatches: %d\n", *errorCtr);
   } else {
     cout << "SUCCESS! No mismatches in any files" << endl;
     
@@ -73,7 +110,7 @@ void compRoot()
   cout << "NB: Only TH1I, TH1F, TH1D, TH2I, TH2F, TH2D, TProfile and TProfile2D files were checked." << endl;
 }
 
-
+// functions:
 
 int compareContents(TDirectoryFile* directory1, TDirectoryFile* directory2, int* mCtr){
 
@@ -277,8 +314,6 @@ int compTProfile(TDirectoryFile* f1, TDirectoryFile* f2, TKey* key){
 int compTProfile2D(TDirectoryFile* f1, TDirectoryFile* f2, TKey* key){
 
 
-  //	  TProfile2D * p1 = (TProfile2D*)subDirectory1;
-  //	  TProfile2D * p2 = (TProfile2D*)subDirectory2;
 	  TProfile2D * p1 = (TProfile2D*)f1;
 	  TProfile2D * p2 = (TProfile2D*)f2;
 	  
@@ -293,24 +328,12 @@ int compTProfile2D(TDirectoryFile* f1, TDirectoryFile* f2, TKey* key){
 	  TDirectoryFile* TH1DProf2DY1=(TDirectoryFile*)Y1;
 	  TDirectoryFile* TH1DProf2DY2=(TDirectoryFile*)Y2;
 
-	  //int Xresult = compTH1F( TH1DProf2DX1,  TH1DProf2DX2, fileKey1);
-	  //int Yresult = compTH1F( TH1DProf2DY1,  TH1DProf2DY2, fileKey1);
-
-	  //    align...   comparing TProfile2d: 
 	  cout << endl << "                      ...2dProfile x-axis: ";
  	  int Xresult = compTH1F( TH1DProf2DX1,  TH1DProf2DX2, key);
-	  //	  cout << endl << "  2dProfile y-axis: ";	 
 	  cout <<         "                      ...2dProfile y-axis: ";
 	  int Yresult = compTH1F( TH1DProf2DY1,  TH1DProf2DY2, key);
 	  
-	  //	  int Yresult = compTH1F(Y1, Y2, fileKey1);
-	  //	  cout << endl << endl << "result of TProfile2D part 1 = " << Xresult << endl;	  
-	  //cout                 << "result of TProfile2D part 2 = " << Yresult << endl;	  
-
 	  int mismatchCtr = Xresult + Yresult;
 	  return mismatchCtr;
-
-
-
 
 }

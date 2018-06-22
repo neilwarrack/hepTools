@@ -1,3 +1,44 @@
+/*
+Compare your histograms and TProfiles NOW!
+
+usage:
+
+$ root compRootErrorsOnly.cxx
+
+
+This macro processes two root files (which MUST be called input1.root and input2.root) that contain
+multiple histograms and TProfiles (in a possibly nested directory format). The macros compare,
+bin-by-bin, the number of entries in every bin in every histogram and output information about
+which histograms have descrepancies in bin content between input1.root and input2.root.
+
+
+The output might look like this (from rootComp.cxx):
+
+******EXAMPLE_OUTPUT_(BEGIN)******
+ERROR: difference in 5/27 bins of HistoExample2
+ERROR: difference in 4/27 bins of HistoExample4
+ERROR: difference in 5/27 bins of HistoExample13
+ERROR: difference in 7/52 bins of HistoExample131
+ - - - - - - FINISHED - - - - - - -
+No. of Mismatches: 4
+******EXAMPLE_OUTPUT_(END)******
+
+As can be seen above only the histo name is given if there are discrepancies in it's bin content
+between input1.root and input2.root. For more info about the directory name and the type of 
+histogram/profile use the _full_ compRoot.cxx in this directory.
+
+The types of root objects that can be compared are listed below:
+TH1I, TH1F, TH1D, TH2I, TH2F, TH2D, TProfile, TProfile2D
+
+If you want even less output, read the readme in this directory and consider:
+
+rootCompSilent.cxx 
+
+(whichoutputs a couple of lines only - the number of histograms that had some difference in at 
+least one of their bins)
+
+*/
+
 #include "TFile.h"
 #include "TTree.h"
 #include "TCanvas.h"
@@ -38,21 +79,12 @@ unsigned int filenum=14;
 void compRootErrorsOnly()
 {
 
-  TDirectory *where = gDirectory; //gDirectory = global directory         
-
-  gROOT->Reset();
-  gStyle->SetPalette(kBird); // Set the "COLZ" palette to a nice one
-  gStyle->SetOptStat(101111);  
-  gStyle->SetStatY(0.9);
-  gStyle->SetStatX(0.9);
-
-  // open root files to compare
   TString fileStr1;
   TString fileStr2;
   stringstream strStream1;
   stringstream strStream2;
-  strStream1 << "expert-monitoring1.root";    
-  strStream2 << "expert-monitoring2.root";    
+  strStream1 << "input1.root";    
+  strStream2 << "input2.root";    
   fileStr1 = strStream1.str();
   fileStr2 = strStream2.str();
   TFile *file1 = new TFile(fileStr1);
@@ -65,7 +97,7 @@ void compRootErrorsOnly()
   cout << " - - - - - - FINISHED - - - - - - - " << endl << endl;
  
   if (*errorCtr){
-    printf(" ERROR: No. of Mismatches: %d\n", *errorCtr);
+    printf("No. of Mismatches: %d\n", *errorCtr);
   } else {
     cout << "SUCCESS! No mismatches in any files" << endl;
     
@@ -104,10 +136,8 @@ int compareContents(TDirectoryFile* directory1, TDirectoryFile* directory2, int*
       
       subDirectory1ClassName = subDirectory1->ClassName();
       if (subDirectory1ClassName == "TDirectoryFile"){
-	//cout << " In TDirectoryFile: " << fileKey1->GetName() << ":" << endl;      
 	*mCtr = compareContents( subDirectory1, subDirectory2, mCtr);
       } else {
-	//cout << "comparing " << subDirectory1ClassName << ": " << fileKey1->GetName() << " ...";      
 
 	// compare histos
 	if (subDirectory1ClassName == "TH1I")     *mCtr += compTH1I(subDirectory1, subDirectory2, fileKey1);
@@ -151,7 +181,6 @@ int compTH1F(TDirectoryFile* f1, TDirectoryFile* f2, TKey* key){
     return 1;
   } 
   else {
-    // cout << "PASS! (no difference in " << totBins << " bins)" << endl;
     return 0;
   }
 }
@@ -175,16 +204,10 @@ int compTH1I(TDirectoryFile* f1, TDirectoryFile* f2, TKey* key){
   
   // user output 
   if (difTot){
-       cout << "ERROR: difference in " << difCtr << "/" << totBins << " bins of "
-	    << key->GetName() << endl;
-
-    // cout << "FAIL! (difference in " << difCtr << "/" << totBins << " bins)" << endl;
+    cout << "ERROR: difference in " << difCtr << "/" << totBins << " bins of "
+	 << key->GetName() << endl;
     return 1;
-  } 
-  else {
-    //cout << "PASS! (no difference in " << totBins << " bins)" << endl;
-    return 0;
-  }
+  } else return 0;
 }
   
 
@@ -210,16 +233,10 @@ int compTH2F(TDirectoryFile* f1, TDirectoryFile* f2, TKey* key){
   
   // user output 
   if (difTot){
-       cout << "ERROR: difference in " << difCtr << "/" << xTotBins*yTotBins << " bins of "
-	    << key->GetName() << endl;
-
-    // cout << "FAIL! (difference in " << difCtr << "/" << xTotBins*yTotBins << " bins)" << endl;
+    cout << "ERROR: difference in " << difCtr << "/" << xTotBins*yTotBins << " bins of "
+	 << key->GetName() << endl;
     return 1;
-  } 
-  else {
-    // cout << "PASS! (no difference in " << xTotBins*yTotBins << " bins)" << endl;
-    return 0;
-  }
+  } else return 0;
 }
 
 
@@ -244,16 +261,10 @@ int compTH2I(TDirectoryFile* f1, TDirectoryFile* f2, TKey* key){
  
   // user output 
   if (difTot){
-       cout << "ERROR: difference in " << difCtr << "/" << xTotBins*yTotBins << " bins of "
-	    << key->GetName() << endl;
-
-    // cout << "FAIL! (difference in " << difCtr << "/" << xTotBins*yTotBins << " bins)" << endl;
+    cout << "ERROR: difference in " << difCtr << "/" << xTotBins*yTotBins << " bins of "
+	 << key->GetName() << endl;
     return 1;
-  } 
-  else {
-    // cout << "PASS! (no difference in " << xTotBins*yTotBins << " bins)" << endl;
-    return 0;
-  }
+  } else return 0;
 }
 
 
@@ -272,58 +283,39 @@ int compTProfile(TDirectoryFile* f1, TDirectoryFile* f2, TKey* key){
   
 
   if (h3->GetEntries() != 0.0){
-    
     delete h3;
-       cout << "ERROR: difference in " << key->GetName() << endl;
-
-    // cout << "FAIL!" << endl;
+    cout << "ERROR: difference in " << key->GetName() << endl;
     return 1;  
   }
- 
+  
   delete h3;
-  // cout << "PASS!" << endl;
-   return 0;
+  return 0;
 }
 
 
 int compTProfile2D(TDirectoryFile* f1, TDirectoryFile* f2, TKey* key){
 
-
-  //	  TProfile2D * p1 = (TProfile2D*)subDirectory1;
-  //	  TProfile2D * p2 = (TProfile2D*)subDirectory2;
-	  TProfile2D * p1 = (TProfile2D*)f1;
-	  TProfile2D * p2 = (TProfile2D*)f2;
-	  
-	  TH1D *X1 = p1->ProjectionX("X1");
-	  TH1D *X2 = p2->ProjectionX("X1");
-
-	  TH1D *Y1 = p1->ProjectionY("Y1");
-	  TH1D *Y2 = p2->ProjectionY("Y2");
-	  
-	  TDirectoryFile* TH1DProf2DX1=(TDirectoryFile*)X1;
-	  TDirectoryFile* TH1DProf2DX2=(TDirectoryFile*)X2;
-	  TDirectoryFile* TH1DProf2DY1=(TDirectoryFile*)Y1;
-	  TDirectoryFile* TH1DProf2DY2=(TDirectoryFile*)Y2;
-
-	  //int Xresult = compTH1F( TH1DProf2DX1,  TH1DProf2DX2, fileKey1);
-	  //int Yresult = compTH1F( TH1DProf2DY1,  TH1DProf2DY2, fileKey1);
-
-	  //    align...   comparing TProfile2d: 
-	  //	  cout << endl << "                      ...2dProfile x-axis: ";
- 	  int Xresult = compTH1F( TH1DProf2DX1,  TH1DProf2DX2, key);
-	  if (Xresult) cout << "ERROR: (above is an x-axis error)";
-	  //	  cout << endl << "  2dProfile y-axis: ";	 
-	  // cout <<         "                      ...2dProfile y-axis: ";
-	  int Yresult = compTH1F( TH1DProf2DY1,  TH1DProf2DY2, key);
-	  if (Yresult) cout << "ERROR: (above is an y-axis error)";
-	  //	  int Yresult = compTH1F(Y1, Y2, fileKey1);
-	  //	  cout << endl << endl << "result of TProfile2D part 1 = " << Xresult << endl;	  
-	  //cout                 << "result of TProfile2D part 2 = " << Yresult << endl;	  
-
-	  int mismatchCtr = Xresult + Yresult;
-	  return mismatchCtr;
-
-
-
-
+  
+  TProfile2D * p1 = (TProfile2D*)f1;
+  TProfile2D * p2 = (TProfile2D*)f2;
+  
+  TH1D *X1 = p1->ProjectionX("X1");
+  TH1D *X2 = p2->ProjectionX("X1");
+  
+  TH1D *Y1 = p1->ProjectionY("Y1");
+  TH1D *Y2 = p2->ProjectionY("Y2");
+  
+  TDirectoryFile* TH1DProf2DX1=(TDirectoryFile*)X1;
+  TDirectoryFile* TH1DProf2DX2=(TDirectoryFile*)X2;
+  TDirectoryFile* TH1DProf2DY1=(TDirectoryFile*)Y1;
+  TDirectoryFile* TH1DProf2DY2=(TDirectoryFile*)Y2;
+  
+  int Xresult = compTH1F( TH1DProf2DX1,  TH1DProf2DX2, key);
+  if (Xresult) cout << "ERROR: (above is an x-axis error)";
+  int Yresult = compTH1F( TH1DProf2DY1,  TH1DProf2DY2, key);
+  if (Yresult) cout << "ERROR: (above is an y-axis error)";
+  
+  int mismatchCtr = Xresult + Yresult;
+  return mismatchCtr;
+  
 }
