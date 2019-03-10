@@ -1,0 +1,281 @@
+#!/usr/bin/env bash
+
+# USAGE: #############################################################
+if [[ "$1" = "-h" ]] || [[ "$1" = "--help" ]]; then
+    printf "Use rsync to locally copy files from a remote directory.\n\n"
+    printf "Usage: cpin [option] <TAG> [-d/-D <LOCAL>] [[-f] <file1> <file2>...]
+
+Desciption:
+- A mandatory 'tag' is given to specify the remote directory.
+- Files are copied to current directory unless an optional <LOCAL> 
+  directory is specified.  
+- An optional list of <files> may be specified for copying.
+ 
+ Options:
+  --help, -h      Display this message.
+  --tags, -t      Display list of TAGs and corresponding remote paths.
+  <TAG>           A short string which sets the remote path for rsync. 
+  -d <LOCAL>      Remote files are copied to an optionaly specified 
+                  local directory. If the local directory does not 
+                  exist it will be created, otherwise the user is 
+                  asked if they want to overwrite the files being 
+                  copied.
+  -D <LOCAL>      As above, but overwrite is FORCED if <LOCAL> exists.  
+  [-f] <files>    An optionaly specified space-seperated list of files
+                  to be copied. If the -f option is used then <files>
+                  itself is a single file containing a list of files.
+                  
+
+For further help type: rsync --help
+
+"
+ exit 0
+fi
+# LIST REMOTES: #######################################################################
+if [[ "$1" = "-t" ]] || [[ "$1" = "--tags" ]]; then
+GLASGOW="nwarrack@ppelogin1.ppe.gla.ac.uk:~/"
+    printf "
+home      ${GLASGOW}
+dump      ${GLASGOW}temp_dump_for_cpin
+top       ${GLASGOW}TopKe/plottingmacros/all_lept/Plots/
+rivet     ${GLASGOW}RivetAnas/base/rivet-plots/
+nfsatlas  ${GLASGOW}../../../../nfs/atlas/nwarrack/SpinCors/Bckg/diboson/user.nwarrack.361600.PowhegPy8EG.DAOD_TOPQ1.e4616_s3126_r10201_p3526.AT-21.2.58-MC16dBckg-v2_output.root/
+\n"
+    exit 0
+fi
+#######################################################################################
+
+
+# Quickly abort if the user doesn't have rsync
+type rsync >/dev/null 2>&1 || { echo >&2 "This requires rsync but you don't have it.  Aborting."; exit 1; }
+
+
+# read in arg 1 (the 'tag') for remote directory targets:
+if [[ "$1" = "top" ]]; then
+    REMOTE_DIR="nwarrack@ppelogin1.ppe.gla.ac.uk:~/TopKe/plottingmacros/all_lept/Plots/"
+elif [[ "$1" = "home" ]]; then
+    REMOTE_DIR="nwarrack@ppelogin1.ppe.gla.ac.uk:~/"
+elif [[ "$1" = "rivet" ]]; then
+    REMOTE_DIR="nwarrack@ppelogin1.ppe.gla.ac.uk:~/RivetAnas/base/rivet-plots/"
+elif [[ "$1" = "nfsatlas" ]]; then
+    REMOTE_DIR="nwarrack@ppelogin1.ppe.gla.ac.uk:~/../../../../nfs/atlas/nwarrack/SpinCors/Bckg/diboson/user.nwarrack.361600.PowhegPy8EG.DAOD_TOPQ1.e4616_s3126_r10201_p3526.AT-21.2.58-MC16dBckg-v2_output.root/"
+elif [[ "$1" = "dump" ]]; then
+    REMOTE_DIR="nwarrack@ppelogin1.ppe.gla.ac.uk:~/temp_dump_for_cpin/"
+else # incorrect arguments... print some help...
+    printf "The first argument should specify remote directory!\n"
+    printf "This is done using a 'tag'. Tags can be listed using:\n"
+    printf "cpin --list\n"
+    printf "(use \"--help\" for more info).\n"
+    exit 1
+fi
+
+### read any rsync input
+if [[ "$1" == "--rsync" ]];then
+printf "this code is not written yet!"
+fi
+
+### copy remote files
+
+if [[ $# -eq 1 ]];
+then ## copy full contents of remote directory to current location
+    printf "COPYING: -everything-\n"
+    printf "FROM: $REMOTE_DIR\n"
+    printf "TO: $PWD\n"
+    printf "connecting to remote...\n"
+    rsync -avz $REMOTE_DIR .
+    printf "done.\n"
+    exit 0
+fi
+
+if [[ "$2" = "-d" ]]; then
+    LOCAL_DIR=$3
+    
+    
+    if [[ $# -eq 3 ]];
+    then ## copy full contents of remote directory to a LOCAL_DIR with option to overwrite 
+	printf "COPYING: -everything-\n"
+	printf "FROM: $REMOTE_DIR\n"
+	printf "TO: $PWD/$LOCAL_DIR\n"
+	# offer to abort or overwrite if $LOCAL_DIR exists.
+	if [[ -d "$LOCAL_DIR" ]]; then
+	    read -p "$LOCAL_DIR already exists! Would you like to continue (files may be overwriten)? (y/n)" -n 1 -r
+	    if [[ ! $REPLY =~ ^[Yy]$ ]]
+	    then
+		printf "\nAborting.\n\n"
+		exit 1
+	    fi
+	else
+	    mkdir $LOCAL_DIR
+	fi
+	printf "\nconnecting to remote...\n"
+	printf "ATTEMPTING: rsync -avz $REMOTE_DIR $LOCAL_DIR/"
+	rsync -avz $REMOTE_DIR $LOCAL_DIR/
+	printf "done.\n"
+	exit 0
+    else # list of files (or file containing list) was passed
+	if [[ "$4" = "-f" ]]; then ## use a list file
+	    if [[ $# -eq 4 ]]; then ## abort if not enough arguments
+	 	printf "no list passed. Aborting\n"
+		exit 1
+	    elif [[ $# -gt 5 ]]; then ## abort if too many arguments
+	 	printf "-f requires a single file with a list of files\nto copy. Aborting\n"
+		exit 1
+	    else
+		LIST_FILE=$5
+	    fi
+	    printf "COPYING: contents of $LIST_FILE\n"
+	    printf "FROM: $REMOTE_DIR\n"
+	    printf "TO: $PWD/$LOCAL_DIR\n"
+	else # compile file containing list of files   
+	    COMPILE_LIST=true
+	    shift 3 #<- moves the start of the argument list ("$@") on by 3
+	    FILE_LIST=$@
+	    printf "COPYING: $FILE_LIST\n"
+	    printf "FROM: $REMOTE_DIR\n"
+	    printf "TO: $PWD/$LOCAL_DIR\n"
+	fi
+	# offer to abort or overwrite if $LOCAL_DIR exists.
+	if [[ -d "$LOCAL_DIR" ]]; then
+	    read -p "$LOCAL_DIR already exists! Would you like to continue (files may be overwriten)? (y/n)" -n 1 -r
+	    if [[ ! $REPLY =~ ^[Yy]$ ]]
+	    then
+		printf "\nAborting.\n\n"
+		exit 1
+	    else
+		printf "\n"
+	    fi
+	else
+	    mkdir $LOCAL_DIR
+	fi
+	# create temp file containing list of files
+	if [[ COMPILE_LIST ]]; then
+	    if [[ -f input-files-list.tmp ]]; then #<-better-safe-than-sorry
+		printf "exiting to avoid overwritting of file input-files-list.tmp\n"
+		exit 1
+	    else
+		touch input-files-list.tmp
+	    fi
+	    for file in "$@"
+	    do
+		printf "$file\n" >> input-files-list.tmp
+	    done
+	    rsync -avz --files-from=input-files-list.tmp $REMOTE_DIR $LOCAL_DIR
+	    rm input-files-list.tmp
+	    printf "done.\n"
+	    exit 0
+	else # use passed list file
+	    rsync -avz --files-from=$LIST_FILE $REMOTE_DIR $LOCAL_DIR
+	    printf "done.\n"
+	    exit 0
+	fi
+	#exit 0
+    fi
+fi
+
+
+if [[ "$2" = "-D" ]]; then 
+    LOCAL_DIR=$3
+    if [[ $# -eq 3 ]];
+    then ## copy full contents of remote directory to a LOCAL_DIR without option to overwrite 
+	printf "COPYING: -everything-\n"
+	printf "FROM: $REMOTE_DIR\n"
+	printf "TO: $PWD/$LOCAL_DIR\n"
+	if [[ ! -d "$LOCAL_DIR" ]]; then
+	    mkdir $LOCL_DIR
+	fi
+	printf "connecting to remote...\n"
+	rsync -avz $REMOTE_DIR ./$LOCAL_DIR/
+	printf "done.\n"
+	exit 0
+    else ## copy the given file(s)
+	if [[ "$4" = "-f" ]]; then ## use a list file
+	    COMPILE_LIST=false
+	    if [[ $# -eq 4 ]]; then ## abort if not enough arguments
+	 	printf "no list passed. Aborting\n"
+		exit 1
+	    elif [[ $# -gt 5 ]]; then ## abort if too many arguments
+	 	printf "-f requires a single file with a list of files\nto copy. Aborting\n"
+		exit 1
+	    else
+		LIST_FILE=$5
+	    fi
+	    printf "COPYING: contents of $LIST_FILE\n"
+	    printf "FROM: $REMOTE_DIR\n"
+	    printf "TO: $PWD/$LOCAL_DIR\n"
+	else # compile file of files   
+	    shift 3 #<- moves the start of the argument list ("$@") on by 3
+	    FILE_LIST=$@
+	    printf "COPYING: $FILE_LIST\n"
+	    printf "FROM: $REMOTE_DIR\n"
+	    printf "TO: $PWD/$LOCAL_DIR\n"
+	fi
+	if [[ ! -d "$LOCAL_DIR" ]]; then
+	    mkdir $LOCAL_DIR
+	fi
+    	# create temp file containing list of files
+	if [[ COMPILE_LIST ]]; then
+	    if [[ -f input-files-list.tmp ]]; then #<-better-safe-than-sorry
+		printf "exiting to avoid overwritting of file input-files-list.tmp\n"
+		exit 1
+	    else
+		touch input-files-list.tmp
+	    fi
+	    for file in "$@"
+	    do
+		printf "$file\n" >> input-files-list.tmp
+	    done
+	    rsync -avz --files-from=input-files-list.tmp $REMOTE_DIR $LOCAL_DIR
+	    rm input-files-list.tmp
+	    printf "done.\n"
+	    exit 0
+	else # use passed list file
+	    rsync -avz --files-from=$LIST_FILE $REMOTE_DIR $LOCAL_DIR
+	    printf "done\n"
+	    exit 0
+	fi
+    fi
+fi
+
+
+# without a specified local dir...
+if [[ "$2" = "-f" ]]; then ## use a list file
+    COMPILE_LIST=false
+    if [[ $# -eq 2 ]]; then ## abort if not enough arguments
+	printf "no list passed. Aborting\n"
+	exit 1
+    elif [[ $# -gt 3 ]]; then ## abort if too many arguments
+	printf "-f requires a single file with a list of files\nto copy. Aborting\n"
+	exit 1
+    else
+	LIST_FILE=$3
+    fi
+    printf "COPYING: contents of $LIST_FILE\n"
+    printf "FROM: $REMOTE_DIR\n"
+    printf "TO: $PWD/\n"
+else # compile file of files   
+    shift #<- moves the start of the argument list ("$@") on by 1
+    FILE_LIST=$@
+    printf "COPYING: $FILE_LIST\n"
+    printf "FROM: $REMOTE_DIR\n"
+    printf "TO: $PWD/\n"
+    if [[ COMPILE_LIST ]]; then ## compile a list file
+	if [[ -f input-files-list.tmp ]]; then #<-better-safe-than-sorry
+	    printf "exiting to avoid overwritting of file input-files-list.tmp\n"
+	    exit 1
+	else
+	    touch input-files-list.tmp
+	fi
+	for file in "$@"
+	do
+	    printf "$file\n" >> input-files-list.tmp
+	done
+	rsync -avz --files-from=input-files-list.tmp $REMOTE_DIR .
+	rm input-files-list.tmp
+	printf "done.\n"
+	exit 0
+    else # use passed list file
+	rsync -avz --files-from=$LIST_FILE $REMOTE_DIR .
+	printf "done.\n"
+	exit 0
+    fi
+fi
