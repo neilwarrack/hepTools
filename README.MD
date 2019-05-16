@@ -20,9 +20,9 @@ Move your myCertificate.p12 to the machine that requires grid access
 *step 6*
 Enter the following lines on the command line (where you will be prompted to enter your password and create a NEW password which will be the one you get asked for when you try to use the grid etc.):
 
-`openssl pkcs12 -in mycert.p12 -clcerts -nokeys -out usercert.pem`
+`openssl pkcs12 -in myCertificate.p12 -clcerts -nokeys -out usercert.pem`
 
-`openssl pkcs12 -in mycert.p12 -nocerts -out userkey.pem`
+`openssl pkcs12 -in myCertificate.p12 -nocerts -out userkey.pem`
 
 `chmod 400 userkey.pem`
 
