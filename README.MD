@@ -6,6 +6,7 @@
 
 
 Your grid certificate has run out, you need to renew it.
+
 **step #1**
 
 Go here: https://ca.cern.ch/ca/
