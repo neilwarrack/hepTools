@@ -1,5 +1,9 @@
-**Updateing your CERN grid Certifiate**
+***Updateing your CERN grid Certifiate***
+
 (10 steps to grid happiness, presuming you already have an old expired grid certificate)
+
+
+
 
 Your grid certificate has run out, you need to renew it.
 **step #1**
