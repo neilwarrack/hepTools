@@ -1,4 +1,4 @@
-***Updateing your CERN grid Certifiate***
+***Updating your CERN grid Certifiate***
 
 (10 steps to grid happiness, presuming you already have an old expired grid certificate)
 
