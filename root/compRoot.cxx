@@ -8,7 +8,7 @@ $ root rootComp.cxx
 
 This macro processes two root files (which MUST be called input1.root and input2.root) that contain
 multiple histograms and TProfiles (in a possibly nested directory format). The macros compare,
-bin-by-bin, the number of entries in every bin in every histogram and output information about
+bin-by-bin, the number of entries in every bin in every histogram and outputs information about
 whether or not histograms have descrepancies in bin content between input1.root and input2.root.
 
 
