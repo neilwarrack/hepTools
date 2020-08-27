@@ -90,7 +90,7 @@ using std::valarray;
       for ( unsigned n = 0; n < NGen; ++n ) {
 	std::cout << std::endl << "*_*_*_*_*_*_*_*_*_*_*_*_* Evolution (" << n << ") *_*_*_*_*_*_*_*_*_*_*_*_*" << std::endl;
 
-	std::cout << "Results: ";
+	std::cout << "Stored results: ";
 	for ( unsigned i = 0; i < _fit.size(); i++ ) {
 	  std::cout << _fit[i] << " " ;
 	}
@@ -98,21 +98,21 @@ using std::valarray;
 
       // Calculate the fitness.
       auto mm = minmax();
-
+  
         // Always kill the fittest individual.
         if ( showTrace ) _debug();
         for ( unsigned int i = 1; i < _pop.size(); ++i ) {
-	  //std::cout << "minmax: " << mm.first << " - " << mm.second << std::endl;
-	  std::cout << "Considering: result[" << i << "] = " << _fit[i] << std::endl;
+	  std::cout << "________________________________________" << std::endl;
 	  double r = rnd();
-	  std::cout << "rand x (max-min) = " << r << " x (" << mm.first << "-" << mm.second << ") = " << r*(mm.second - mm.first) << std::endl;
           if ( _fit[i] > r*(mm.second - mm.first) ){
             // Kill all individuals that have low fitness or are just unlucky.
-	    std::cout << "result[" << i << "] is greater than " << r*(mm.second - mm.first) << " so chucking away" << std::endl;
+	    std::cout << "func(Params[" << i << "]) > rand*(max-min) = " << r << "*(" << mm.first << "-" << mm.second << ") = " << r*(mm.second - mm.first) << std::endl;
+	    std::cout << "Throwing out Params[" << i << "], will generate new random ones later." << std::endl;
             _fit[i] = -1.0;
 	  } else {
             // Improve This individual to be more like the fittest.
-	    std::cout << "ACTION: Moving pop[" << i << "] to pop[0]!" << std::endl;
+	    std::cout << "func(Params[" << i << "]) < rand*(max-min) = " << r << "*(" << mm.first << "-" << mm.second << ") = " << r*(mm.second - mm.first) << std::endl;
+	    std::cout << "Moving Params[" << i << "] by a random amount in the direction of the current best guess." << std::endl;
             move(_pop[i],_pop[0]);
 	  }
         }
@@ -171,19 +171,21 @@ using std::valarray;
       std::pair<double,double> mm(std::numeric_limits<double>::max(), 0.0);
       unsigned int iwin = 0;
       for ( unsigned int i = 0; i < _pop.size(); ++i ) {
+	std::cout << "---------------------------------------" << std::endl;
 	double & v = _fit[i];
         // negative fitness value means the individual is dead, so we
         // welocme a new immigrant.
-	Params rndp = rndParams();
-	std::cout << "generating random parameters: "; 
-	for ( unsigned int i = 0; i < rndp.size(); i++ ) std::cout << rndp[i] ;
-	std::cout << std::endl ;
         if ( v < 0.0 ) {
+	  Params rndp = rndParams();
+	  std::cout << "no parameters found, generating new random parameters: Params[" << i << "] = "; 
+	  for ( unsigned int i = 0; i < rndp.size(); i++ ) std::cout << rndp[i] ;
+	  std::cout << std::endl ;
 	  _pop[i] = rndp;
-	  std::cout << "func(randomParams) = " << f(_pop[i]) << std::endl;	 
-	} else std::cout << "don't use new random params because we want to keep this result as is..." << std::endl;
+	}
+	
+	std::cout << "func(Params[" << i << "]) = " << f(_pop[i]) << std::endl;	 
 
-        // The calculated fitness value cannot be negative.
+	// The calculated fitness value cannot be negative.
 	v = std::max(0.0, f(_pop[i]));
 
 	
