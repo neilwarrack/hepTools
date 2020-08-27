@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
 import yoda
-from yoda.script_helpers import filter_aos
 
 aodict1 = yoda.read("full_stats.yoda")
 aodict2 = yoda.read("out_fid_18files_all.yoda")
