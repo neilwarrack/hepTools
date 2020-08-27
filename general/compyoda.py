@@ -23,6 +23,6 @@ for path in sorted(set(list(aodict1.keys()) + list(aodict2.keys()))):
             if p1.y == 0:
                 print("ZERO in histo 1!", p1.x)
             if p2.y == 0:
-                print("ZERO in histo 1!", p2.x)
+                print("ZERO in histo 2 (skipping ratio)!", p2.x)
             else:
                 print("ratio: ", p1.y/p2.y)
