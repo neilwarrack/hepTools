@@ -35,13 +35,13 @@ To extract your certificate which contains your public key enter the following o
 
 **step #7** 
 
-To extract your private key, enter the following on the command line (you will be prompted to enter the 'Import Password' you created in *step #3*, and then you will be prompted to enter and confirm a *NEW* 'PEM pass phrase' which is what you can think of as your 'grid password'):
+In this step you will be be prompted to enter the 'Import Password', that's the one you created in *step #3*, and then you will be prompted to enter and confirm a *NEW* 'PEM pass phrase' which is what you can think of as your 'grid password'. You may be asked to enter this 'PEM pass phrase' twice. To extract your private key, enter the following on the command line.
 
 `openssl pkcs12 -in myCertificate.p12 -nocerts -out userkey.pem`
 
 **step #8** 
 
-change some permissions by typing the following two commands:
+make sure the permissions are correctly set for these files by typing the following two commands:
 
 1) `chmod 400 userkey.pem`
 
@@ -52,7 +52,9 @@ change some permissions by typing the following two commands:
 
 Move the new files `userkey.pem` and `usercert.pem` to the directory "~/.globus/" (make it if it doesn't already exist and remove any old stuff from it if it does). 
 
+**step #10**
+Check things work by typing `setupATLAS` and then `lsetup rucio`. When you set up rucio you will be prompted to enter "voms-proxy-init -voms atlas" which will then ask for your new pass phrase (this is the PEM pass phrase you chose in Step 7 - not your 'Import password').
 
-**step #10** 
-Delete myCertificate.p12  
-Go grid yourself!
+**step #11**
+If nothing goes wrong, you should have access to the grid and can delete your myCertificate.p12 file. The grid is now accessed via your keys in the `.globus/` directory and your PEM pass phrase.
+
