@@ -25,11 +25,14 @@ When prompted, download your new certificate (which will be called something lik
 
 **step #5** 
 
-Move your myCertificate.p12 to the machine that requires grid access
+All the following instructions should be typed into a terminal. Move your myCertificate.p12 to the machine that requires grid access. You can do this by using something like `rsync`. For example, from the place where your downloaded certificate is, do something like:
+```bash
+rsync -avz myCertificate.p12 username@lxplus.cern.ch:~/
+```
 
 **step #6** 
 
-To extract your certificate which contains your public key enter the following on the command line where your downloaded .p12 file is (you will be prompted to enter the 'Import Password' you created in *step #3*): 
+Log onto the machine that requires grid access (i.e. where you just sent your myCertificate.p12 to) and extract your public key (you will be prompted to enter the 'Import Password' you created in *step #3*): 
 
 `openssl pkcs12 -in myCertificate.p12 -clcerts -nokeys -out usercert.pem`
 
@@ -52,9 +55,14 @@ make sure the permissions are correctly set for these files by typing the follow
 
 Move the new files `userkey.pem` and `usercert.pem` to the directory "~/.globus/" (make it if it doesn't already exist and remove any old stuff from it if it does). 
 
+1) `mv userkey.pem ~/.globus/`
+
+2) `mv usercert.pem ~/.globus/`
+
+
 **step #10**
-Check things work by typing `setupATLAS` and then `lsetup rucio`. When you set up rucio you will be prompted to enter "voms-proxy-init -voms atlas" which will then ask for your new pass phrase (this is the PEM pass phrase you chose in Step 7 - not your 'Import password').
+Check things work (if you are part of the ATLAS collaboration) by typing `setupATLAS` and then `lsetup rucio`. When you set up rucio you will be prompted to enter "voms-proxy-init -voms atlas" which will then ask for your new pass phrase (this is the PEM pass phrase you chose in Step 7 - not your 'Import password').
 
 **step #11**
-If nothing goes wrong, you should have access to the grid and can delete your myCertificate.p12 file. The grid is now accessed via your keys in the `.globus/` directory and your PEM pass phrase.
+If nothing goes wrong, you should have access to the grid and can delete your myCertificate.p12 file (both copies!). The grid is now accessed via your keys in the `.globus/` directory and your PEM pass phrase.
 
